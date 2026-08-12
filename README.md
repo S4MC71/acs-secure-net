@@ -27,6 +27,34 @@ Access the application at `http://localhost:8888`.
 
 ---
 
+### 🔄 Updating to Latest Version
+
+If you pushed new changes to GitHub/GHCR and want to pull & run the updated version locally:
+
+#### Method A: GHCR Image Update
+```bash
+# 1. Stop and remove the old container
+docker rm -f acs-secure-net
+
+# 2. Pull the latest image from GHCR
+docker pull ghcr.io/s4mc71/acs-secure-net:latest
+
+# 3. Start the container with the updated image
+docker run -d -p 8888:3000 --name acs-secure-net ghcr.io/s4mc71/acs-secure-net:latest
+```
+
+#### Method B: Local Code Update (Docker Compose)
+```bash
+# 1. Pull latest code from git
+git pull origin main
+
+# 2. Rebuild and restart container
+docker-compose down
+docker-compose up -d --build
+```
+
+---
+
 ## 🎯 Vulnerability Coverage
 
 | ID | Category | Description |
