@@ -1,0 +1,27 @@
+name: acs-secure-net
+
+services:
+  acs:
+    build: ./app
+    image: ghcr.io/s4mc71/acs-secure-net:latest
+    container_name: acs-secure-net
+    ports:
+      - "8888:3000"
+    volumes:
+      - acs-data:/app/data
+      - acs-uploads:/app/uploads
+    networks:
+      - acssecnet
+    restart: unless-stopped
+
+volumes:
+  acs-data:
+    name: acs-secure-net_data
+  acs-uploads:
+    name: acs-secure-net_uploads
+
+networks:
+  acssecnet:
+    driver: bridge
+
+

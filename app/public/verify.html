@@ -1,0 +1,52 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ACS Secure Net — Verify</title><link rel="stylesheet" href="/css/style.css"></head><body>
+<nav></nav>
+<div class="page">
+  <div class="page-header"><h1>🧬 COMPOSITE <span>VERIFICATION</span></h1><p>Bypass authentication using multi-attribute IDOR combinations</p></div>
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-header"><h3>📱 Phone + DOB</h3></div>
+      <p style="color:var(--grey2);font-size:.8rem;margin-bottom:12px">Enumerate agent phone numbers (+233201110001+) and date of birth.</p>
+      <div class="form-group"><label>Phone Number</label><input class="form-control" id="v1phone" placeholder="+233201110001"></div>
+      <div class="form-group"><label>Date of Birth</label><input class="form-control" id="v1dob" type="date" value="1990-03-15"></div>
+      <button class="btn btn-crimson" onclick="verifyPhoneDob()">Verify Identity</button>
+      <div id="v1Result" style="margin-top:14px"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>✉ Email + 4-Digit Code</h3></div>
+      <p style="color:var(--grey2);font-size:.8rem;margin-bottom:12px">Verification code is deterministic: Math.floor(1000 + id * 1111).</p>
+      <div class="form-group"><label>Email Address</label><input class="form-control" id="v2email" placeholder="operative@acs.secure"></div>
+      <div class="form-group"><label>Verification Code</label><input class="form-control" id="v2code" placeholder="4-digit code"></div>
+      <button class="btn btn-crimson" onclick="verifyEmailCode()">Verify Code</button>
+      <div id="v2Result" style="margin-top:14px"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>👤 Name + Birth Date</h3></div>
+      <p style="color:var(--grey2);font-size:.8rem;margin-bottom:12px">Verify personnel using full name and date of birth.</p>
+      <div class="form-group"><label>Full Name</label><input class="form-control" id="v3name" placeholder="Agent full name"></div>
+      <div class="form-group"><label>Birth Date</label><input class="form-control" id="v3dob" type="date"></div>
+      <button class="btn btn-teal" onclick="verifyNameDob()">Verify Personnel</button>
+      <div id="v3Result" style="margin-top:14px"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>ℹ Composite IDOR Notes</h3></div>
+      <div style="color:var(--grey2);font-size:.82rem;line-height:1.9">
+        <p>Composite identifiers combine two or more known fields to authenticate access. Despite appearing more secure, they remain IDOR vulnerabilities because:</p>
+        <ul style="margin:10px 0 0 18px">
+          <li>Phone numbers are often publicly discoverable</li>
+          <li>Dates of birth are low-entropy (365 × ~50 years)</li>
+          <li>Verification codes may follow predictable patterns</li>
+          <li>Full names combined with DOB are insufficient for true identity verification</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/js/app.js"></script>
+<script>
+if(!requireLogin()){}
+renderNav();
+async function verifyPhoneDob(){try{const d=await api('POST','/api/verify/identity',{phone:$('v1phone').value.trim(),dob:$('v1dob').value});$('v1Result').innerHTML=renderAgent(d.agent,d.acs_secret,d.note);}catch(e){$('v1Result').innerHTML=`<div class="alert alert-red">${e.message}</div>`;}}
+async function verifyEmailCode(){try{const d=await api('POST','/api/verify/code',{email:$('v2email').value.trim(),code:$('v2code').value.trim()});$('v2Result').innerHTML=renderAgent(d.agent,d.acs_secret,d.note);}catch(e){$('v2Result').innerHTML=`<div class="alert alert-red">${e.message}</div>`;}}
+async function verifyNameDob(){try{const d=await api('POST','/api/verify/personnel',{name:$('v3name').value.trim(),birth_date:$('v3dob').value});$('v3Result').innerHTML=renderAgent(d.agent,d.acs_secret,d.note);}catch(e){$('v3Result').innerHTML=`<div class="alert alert-red">${e.message}</div>`;}}
+</script></body></html>

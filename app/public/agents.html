@@ -1,0 +1,79 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ACS Secure Net — Agent Directory</title><link rel="stylesheet" href="/css/style.css"></head><body>
+<nav></nav>
+<div class="page">
+  <div class="page-header"><h1>👥 AGENT <span>DIRECTORY</span></h1><p>Operative profiles — Shadow Intelligence Network</p></div>
+  <div class="grid-2" style="margin-bottom:20px">
+    <div class="card">
+      <div class="card-header"><h3>🔢 Agent Lookup — ID</h3></div>
+      <div style="display:flex;gap:8px">
+        <input class="form-control" id="numId" type="number" placeholder="Agent numeric ID (1, 2, 3...)" style="flex:1">
+        <button class="btn btn-crimson btn-sm" onclick="lookupById()">Retrieve</button>
+      </div>
+      <div id="numResult" style="margin-top:12px"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>👤 Agent Lookup — Username</h3></div>
+      <div style="display:flex;gap:8px">
+        <input class="form-control" id="uname" placeholder="e.g. phantom_k" style="flex:1">
+        <button class="btn btn-crimson btn-sm" onclick="lookupByUsername()">Retrieve</button>
+      </div>
+      <div id="unameResult" style="margin-top:12px"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>📞 Agent Lookup — Phone</h3></div>
+      <div style="display:flex;gap:8px">
+        <input class="form-control" id="phone" placeholder="+233201110001" style="flex:1">
+        <button class="btn btn-crimson btn-sm" onclick="lookupByPhone()">Retrieve</button>
+      </div>
+      <div id="phoneResult" style="margin-top:12px"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>✉ Agent Lookup — Email</h3></div>
+      <div style="display:flex;gap:8px">
+        <input class="form-control" id="email" placeholder="operative@acs.secure" style="flex:1">
+        <button class="btn btn-crimson btn-sm" onclick="lookupByEmail()">Retrieve</button>
+      </div>
+      <div id="emailResult" style="margin-top:12px"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>🏷 Agent Lookup — Slug</h3></div>
+      <div style="display:flex;gap:8px">
+        <input class="form-control" id="slug" placeholder="e.g. phantom-kira" style="flex:1">
+        <button class="btn btn-teal btn-sm" onclick="lookupBySlug()">Retrieve</button>
+      </div>
+      <div id="slugResult" style="margin-top:12px"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3>📋 Known Operatives</h3></div>
+    <div id="agentGrid" class="grid-3"><div style="color:var(--grey2)">Loading...</div></div>
+  </div>
+</div>
+<script src="/js/app.js"></script>
+<script>
+if(!requireLogin()){}
+renderNav();
+async function init(){
+  const d=await api('GET','/api/agents');
+  $('agentGrid').innerHTML=d.agents.map(a=>`
+    <div class="agent-card">
+      <div class="agent-avatar">${a.codename.slice(0,2)}</div>
+      <div class="agent-codename">${a.codename}</div>
+      <div class="agent-faction">${a.faction} · ${a.rank}</div>
+      <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+        ${classBadge(a.clearance)}
+        <button class="btn btn-outline btn-sm" onclick="quickLookup(${a.id})">ID:${a.id}</button>
+        <button class="btn btn-outline btn-sm" onclick="quickSlug('${a.slug}')">Slug</button>
+      </div>
+    </div>`).join('');
+}
+async function lookupById(){const id=$('numId').value;if(!id)return;try{const d=await api('GET',`/api/agents/${id}`);$('numResult').innerHTML=renderAgent(d.agent,d.acs_secret,d.note);}catch(e){$('numResult').innerHTML=`<div class="alert alert-red">${e.message}</div>`;}}
+async function lookupByUsername(){const u=$('uname').value.trim();if(!u)return;try{const d=await api('GET',`/api/agents/u/${u}`);$('unameResult').innerHTML=renderAgent(d.agent,d.acs_secret,d.note);}catch(e){$('unameResult').innerHTML=`<div class="alert alert-red">${e.message}</div>`;}}
+async function lookupByPhone(){const p=$('phone').value.trim();if(!p)return;try{const d=await api('GET',`/api/agents/phone/${encodeURIComponent(p)}`);$('phoneResult').innerHTML=renderAgent(d.agent,d.acs_secret,d.note);}catch(e){$('phoneResult').innerHTML=`<div class="alert alert-red">${e.message}</div>`;}}
+async function lookupByEmail(){const e=$('email').value.trim();if(!e)return;try{const d=await api('GET',`/api/agents/email/${encodeURIComponent(e)}`);$('emailResult').innerHTML=renderAgent(d.agent,d.acs_secret,d.note);}catch(e){$('emailResult').innerHTML=`<div class="alert alert-red">${e.message}</div>`;}}
+async function lookupBySlug(){const s=$('slug').value.trim();if(!s)return;try{const d=await api('GET',`/api/agents/slug/${s}`);$('slugResult').innerHTML=renderAgent(d.agent,d.acs_secret,d.note);}catch(e){$('slugResult').innerHTML=`<div class="alert alert-red">${e.message}</div>`;}}
+function quickLookup(id){$('numId').value=id;lookupById();}
+function quickSlug(slug){$('slug').value=slug;lookupBySlug();}
+init();
+</script></body></html>

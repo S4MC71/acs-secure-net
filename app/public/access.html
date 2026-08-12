@@ -1,0 +1,86 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ACS Secure Net — Encoded Access</title><link rel="stylesheet" href="/css/style.css"></head><body>
+<nav></nav>
+<div class="page">
+  <div class="page-header"><h1>🔐 ENCODED <span>ACCESS</span></h1><p>Base64 · Hex · URL-Encoded · MD5 Hash · SHA1 Hash IDOR</p></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header"><h3>📦 Base64 Reference</h3></div>
+      <p style="color:var(--grey2);font-size:.8rem;margin-bottom:10px">Agent ID encoded as Base64. Decode: base64("1") = "MQ=="</p>
+      <div style="display:flex;gap:8px">
+        <input class="form-control" id="b64ref" placeholder="Base64 encoded agent ID (e.g. MQ==)" style="flex:1">
+        <button class="btn btn-crimson btn-sm" onclick="lookupB64()">Lookup</button>
+      </div>
+      <div id="b64Result" style="margin-top:12px"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>🔢 Hex Reference</h3></div>
+      <p style="color:var(--grey2);font-size:.8rem;margin-bottom:10px">Agent ID encoded as Hex. Decode: hex("1") = "31"</p>
+      <div style="display:flex;gap:8px">
+        <input class="form-control" id="hexref" placeholder="Hex encoded agent ID (e.g. 31)" style="flex:1">
+        <button class="btn btn-crimson btn-sm" onclick="lookupHex()">Lookup</button>
+      </div>
+      <div id="hexResult" style="margin-top:12px"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>🌐 URL-Encoded Reference</h3></div>
+      <p style="color:var(--grey2);font-size:.8rem;margin-bottom:10px">Pattern: agent_{id} URL-encoded. e.g. agent_1 = "agent_1"</p>
+      <div style="display:flex;gap:8px">
+        <input class="form-control" id="urlref" placeholder="URL-encoded ref (e.g. agent_1)" style="flex:1">
+        <button class="btn btn-crimson btn-sm" onclick="lookupURL()">Lookup</button>
+      </div>
+      <div id="urlResult" style="margin-top:12px"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>#️⃣ MD5 Hash — Email</h3></div>
+      <p style="color:var(--grey2);font-size:.8rem;margin-bottom:10px">MD5(email) used as identifier. Brute-force or enumerate known emails.</p>
+      <div style="display:flex;gap:8px">
+        <input class="form-control" id="md5hash" placeholder="MD5 hash of agent email" style="flex:1">
+        <button class="btn btn-teal btn-sm" onclick="lookupMD5()">Lookup</button>
+      </div>
+      <div id="md5Result" style="margin-top:12px"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>#️⃣ SHA1 Hash — Username</h3></div>
+      <p style="color:var(--grey2);font-size:.8rem;margin-bottom:10px">SHA1(username) used as identifier. Crack with hashcat or enumerate.</p>
+      <div style="display:flex;gap:8px">
+        <input class="form-control" id="sha1hash" placeholder="SHA1 hash of agent username" style="flex:1">
+        <button class="btn btn-teal btn-sm" onclick="lookupSHA1()">Lookup</button>
+      </div>
+      <div id="sha1Result" style="margin-top:12px"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>⚡ Quick Hash Generator</h3></div>
+      <p style="color:var(--grey2);font-size:.8rem;margin-bottom:10px">Generate hashes and encodings for testing.</p>
+      <div class="form-group"><label>Input Value</label><input class="form-control" id="hashInput" placeholder="Email or username"></div>
+      <div class="form-group"><label>Type</label>
+        <select class="form-control" id="hashType">
+          <option value="b64">Base64 (integer)</option>
+          <option value="hex">Hex (integer)</option>
+          <option value="url">URL-encode (agent_{id})</option>
+        </select>
+      </div>
+      <button class="btn btn-gold" onclick="generateEncoding()">Generate</button>
+      <div id="genResult" style="margin-top:10px"></div>
+    </div>
+  </div>
+</div>
+<script src="/js/app.js"></script>
+<script>
+if(!requireLogin()){}
+renderNav();
+async function lookupB64(){const r=$('b64ref').value.trim();if(!r)return;try{const d=await api('GET',`/api/access/b64/${encodeURIComponent(r)}`);$('b64Result').innerHTML=renderAgent(d.agent,d.acs_secret,d.note);}catch(e){$('b64Result').innerHTML=`<div class="alert alert-red">${e.message}</div>`;}}
+async function lookupHex(){const r=$('hexref').value.trim();if(!r)return;try{const d=await api('GET',`/api/access/hex/${r}`);$('hexResult').innerHTML=renderAgent(d.agent,d.acs_secret,d.note);}catch(e){$('hexResult').innerHTML=`<div class="alert alert-red">${e.message}</div>`;}}
+async function lookupURL(){const r=$('urlref').value.trim();if(!r)return;try{const d=await api('GET',`/api/access/url/${encodeURIComponent(r)}`);$('urlResult').innerHTML=renderAgent(d.agent,d.acs_secret,d.note);}catch(e){$('urlResult').innerHTML=`<div class="alert alert-red">${e.message}</div>`;}}
+async function lookupMD5(){const h=$('md5hash').value.trim();if(!h)return;try{const d=await api('GET',`/api/agents/hash/md5/${h}`);$('md5Result').innerHTML=renderAgent(d.agent,d.acs_secret,d.note);}catch(e){$('md5Result').innerHTML=`<div class="alert alert-red">${e.message}</div>`;}}
+async function lookupSHA1(){const h=$('sha1hash').value.trim();if(!h)return;try{const d=await api('GET',`/api/agents/hash/sha1/${h}`);$('sha1Result').innerHTML=renderAgent(d.agent,d.acs_secret,d.note);}catch(e){$('sha1Result').innerHTML=`<div class="alert alert-red">${e.message}</div>`;}}
+function generateEncoding(){
+  const val=$('hashInput').value.trim();const type=$('hashType').value;
+  if(!val)return;
+  let result='';
+  if(type==='b64')result=btoa(val);
+  else if(type==='hex')result=Array.from(new TextEncoder().encode(val)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  else if(type==='url')result=encodeURIComponent('agent_'+val);
+  $('genResult').innerHTML=`<div class="code-block">${result}</div>`;
+}
+</script></body></html>
