@@ -14,7 +14,7 @@
 ```bash
 git clone https://github.com/S4MC71/acs-secure-net.git
 cd acs-secure-net
-docker-compose up -d
+docker-compose up -d --build
 ```
 
 ### Option 2: Run directly from GitHub Server (GHCR)

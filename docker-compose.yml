@@ -3,7 +3,7 @@ name: acs-secure-net
 services:
   acs:
     build: ./app
-    image: ghcr.io/s4mc71/acs-secure-net:latest
+    image: acs-secure-net:latest
     container_name: acs-secure-net
     ports:
       - "8888:3000"
